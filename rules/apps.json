@@ -1,0 +1,13 @@
+[
+  {
+    "id": "large_unused_apps",
+    "name": "Large Unused Application",
+    "type": "registry_app",
+    "conditions": {
+      "min_size_mb": 1000,
+      "min_inactive_days": 30
+    },
+    "action": "flag_for_review",
+    "message": "This installed application takes up over 1GB and hasn't been accessed in over 30 days."
+  }
+]

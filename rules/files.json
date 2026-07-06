@@ -1,0 +1,14 @@
+[
+  {
+    "id": "stale_downloads",
+    "name": "Stale Downloaded File",
+    "type": "file_metadata",
+    "target_dir": "Downloads",
+    "conditions": {
+      "min_size_mb": 500,
+      "min_inactive_days": 90
+    },
+    "action": "flag_for_review",
+    "message": "Large downloaded file untouched for over 3 months."
+  }
+]
