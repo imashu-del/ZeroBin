@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Trash2, HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock } from "lucide-react";
+import { Trash2, HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock, ChevronDown, ChevronUp, MoreHorizontal, Search as SearchIcon, X, ShieldCheck } from "lucide-react";
 
 interface FoundItem {
   path: string;
@@ -11,6 +11,11 @@ interface FoundItem {
   risk: string;
   description: string;
   impact: string;
+}
+
+interface SearchResult {
+  path: string;
+  size_bytes: number;
 }
 
 interface Recommendation {
@@ -42,17 +47,36 @@ function App() {
   const [results, setResults] = useState<ScanResultPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCleaning, setIsCleaning] = useState<string | null>(null);
+  const [isRecExpanded, setIsRecExpanded] = useState(false);
+  const [ignoredIds, setIgnoredIds] = useState<Set<string>>(new Set());
+  const [safeDelete, setSafeDelete] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  async function handleCleanUp(path: string) {
+  function handleIgnore(id: string) {
+    setIgnoredIds(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }
+
+  async function handleCleanUp(path: string, fromSearch = false) {
     setIsCleaning(path);
     setError(null);
     try {
-      await invoke("clean_up_path", { path });
-      if (results) {
+      await invoke("clean_up_path", { path, safeDelete });
+      if (results && !fromSearch) {
         setResults({
           ...results,
           caches: results.caches.filter(c => c.path !== path)
         });
+      }
+      if (fromSearch) {
+        setSearchResults(searchResults.filter(r => r.path !== path));
       }
     } catch (e: any) {
       setError(`Failed to clean up: ${e.toString()}`);
@@ -64,6 +88,7 @@ function App() {
   async function startScan() {
     setIsScanning(true);
     setError(null);
+    setIgnoredIds(new Set());
     try {
       const payload: ScanResultPayload = await invoke("start_scan");
       
@@ -79,8 +104,24 @@ function App() {
     }
   }
 
-  const totalCacheSize = results ? results.caches.reduce((acc, item) => acc + item.size_bytes, 0) : 0;
-  const totalRecSize = results ? results.recommendations.reduce((acc, item) => acc + item.size_bytes, 0) : 0;
+  async function performSearch() {
+    if (!searchQuery.trim()) return;
+    setIsSearching(true);
+    try {
+      const res: SearchResult[] = await invoke("search_files", { query: searchQuery });
+      setSearchResults(res);
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
+  const visibleCaches = results ? results.caches.filter(c => !ignoredIds.has(c.path)) : [];
+  const visibleRecommendations = results ? results.recommendations.filter(r => !ignoredIds.has(r.id)) : [];
+
+  const totalCacheSize = visibleCaches.reduce((acc, item) => acc + item.size_bytes, 0);
+  const totalRecSize = visibleRecommendations.reduce((acc, item) => acc + item.size_bytes, 0);
   const totalSavings = totalCacheSize + totalRecSize;
 
   return (
@@ -93,6 +134,40 @@ function App() {
         <p className="text-muted-foreground max-w-md text-center">
           Offline-first storage intelligence and cleanup utility.
         </p>
+      </div>
+
+      <div className="fixed bottom-6 left-6 z-50">
+        <button 
+          onClick={() => setIsMoreOpen(!isMoreOpen)}
+          className="flex items-center px-5 py-2.5 bg-card border shadow-md rounded-full hover:bg-muted transition font-medium"
+        >
+          <MoreHorizontal className="w-5 h-5 mr-2 text-muted-foreground" /> More
+        </button>
+        
+        {isMoreOpen && (
+          <div className="absolute bottom-14 left-0 bg-card border shadow-xl rounded-xl w-64 z-10 overflow-hidden animate-in fade-in slide-in-from-bottom-2">
+            <div className="p-2">
+              <button 
+                onClick={() => {
+                  setIsSearchOpen(true);
+                  setIsMoreOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-muted rounded-md flex items-center"
+              >
+                <SearchIcon className="w-4 h-4 mr-2" /> Search Files
+              </button>
+              <div className="flex items-center justify-between px-4 py-2 hover:bg-muted rounded-md cursor-pointer" onClick={() => setSafeDelete(!safeDelete)}>
+                <div className="flex items-center">
+                  <ShieldCheck className={`w-4 h-4 mr-2 ${safeDelete ? "text-green-500" : "text-muted-foreground"}`} />
+                  <span>Safe Delete</span>
+                </div>
+                <div className={`w-8 h-4 rounded-full flex items-center px-0.5 transition-colors ${safeDelete ? 'bg-green-500' : 'bg-muted-foreground/30'}`}>
+                  <div className={`w-3 h-3 rounded-full bg-white transition-transform ${safeDelete ? 'translate-x-4' : 'translate-x-0'}`} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="w-full max-w-4xl flex flex-col space-y-6">
@@ -133,57 +208,78 @@ function App() {
             </div>
 
             {/* Recommendations Section */}
-            <div>
-              <h3 className="text-xl font-medium flex items-center mb-4 text-purple-400">
-                <Lightbulb className="mr-2" /> Smart Recommendations
-              </h3>
-              {results.recommendations.length === 0 ? (
-                <div className="text-center p-6 text-muted-foreground bg-card rounded-xl border">
-                  No smart recommendations right now.
+            <div className="mb-8">
+              <button 
+                onClick={() => setIsRecExpanded(!isRecExpanded)}
+                className="w-full flex items-center justify-between text-xl font-medium mb-4 text-purple-400 bg-card p-4 rounded-xl border hover:bg-muted/50 transition"
+              >
+                <div className="flex items-center">
+                  <Lightbulb className="mr-2" /> 
+                  Smart Recommendations
+                  {visibleRecommendations.length > 0 && (
+                    <span className="ml-3 text-sm bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full font-bold">
+                      {visibleRecommendations.length} items
+                    </span>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {results.recommendations.map((rec, idx) => (
-                    <div key={`rec-${idx}`} className="bg-card p-5 rounded-xl border border-purple-500/20 shadow-sm hover:border-purple-500/50 transition relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="text-lg font-semibold">{rec.target}</h4>
+                {isRecExpanded ? <ChevronUp /> : <ChevronDown />}
+              </button>
+              
+              {isRecExpanded && (
+                visibleRecommendations.length === 0 ? (
+                  <div className="text-center p-6 text-muted-foreground bg-card rounded-xl border">
+                    No smart recommendations right now.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {visibleRecommendations.map((rec, idx) => (
+                      <div key={`rec-${idx}`} className="bg-card p-5 rounded-xl border border-purple-500/20 shadow-sm hover:border-purple-500/50 transition relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="text-lg font-semibold">{rec.target}</h4>
+                          </div>
+                          <span className="text-lg font-bold text-purple-400">{formatBytes(rec.size_bytes)}</span>
                         </div>
-                        <span className="text-lg font-bold text-purple-400">{formatBytes(rec.size_bytes)}</span>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
+                        
+                        <div className="flex items-center text-sm text-amber-500 bg-amber-500/10 w-fit px-3 py-1.5 rounded-full mb-4">
+                          <Clock className="w-4 h-4 mr-2" />
+                          Unused for {rec.inactive_days} days
+                        </div>
+                        
+                        <div className="flex justify-end space-x-3">
+                          <button 
+                            onClick={() => handleIgnore(rec.id)}
+                            className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition text-muted-foreground hover:text-foreground"
+                          >
+                            Ignore
+                          </button>
+                          <button className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition">
+                            View Details
+                          </button>
+                          <button className="px-4 py-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-sm hover:bg-purple-500 hover:text-white transition">
+                            Review Action
+                          </button>
+                        </div>
                       </div>
-                      
-                      <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
-                      
-                      <div className="flex items-center text-sm text-amber-500 bg-amber-500/10 w-fit px-3 py-1.5 rounded-full mb-4">
-                        <Clock className="w-4 h-4 mr-2" />
-                        Unused for {rec.inactive_days} days
-                      </div>
-                      
-                      <div className="flex justify-end space-x-3">
-                        <button className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition">
-                          View Details
-                        </button>
-                        <button className="px-4 py-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-sm hover:bg-purple-500 hover:text-white transition">
-                          Review Action
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )
               )}
             </div>
 
             {/* Standard Caches Section */}
             <div>
               <h3 className="text-xl font-medium mb-4">Known Caches & Temp Files</h3>
-              {results.caches.length === 0 ? (
+              {visibleCaches.length === 0 ? (
                 <div className="text-center p-8 text-muted-foreground bg-card rounded-xl border">
                   Your system is clean!
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {results.caches.map((item, idx) => (
+                  {visibleCaches.map((item, idx) => (
                     <div key={`cache-${idx}`} className="bg-card p-5 rounded-xl border shadow-sm hover:border-primary/50 transition">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center space-x-2">
@@ -212,6 +308,12 @@ function App() {
                       
                       <div className="flex justify-end space-x-3">
                         <button 
+                          onClick={() => handleIgnore(item.path)}
+                          className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition text-muted-foreground hover:text-foreground"
+                        >
+                          Ignore
+                        </button>
+                        <button 
                           onClick={() => invoke("open_path_in_explorer", { path: item.path })}
                           className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition"
                         >
@@ -235,6 +337,65 @@ function App() {
           </div>
         )}
       </div>
+
+      {isSearchOpen && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center pt-24 px-4 animate-in fade-in">
+          <div className="w-full max-w-3xl bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="p-4 border-b flex items-center space-x-4 relative">
+              <SearchIcon className="w-6 h-6 text-muted-foreground ml-2" />
+              <input 
+                autoFocus
+                type="text"
+                placeholder="Search for massive files..."
+                className="flex-1 bg-transparent text-xl outline-none"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && performSearch()}
+              />
+              {isSearching && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
+              <button 
+                onClick={() => setIsSearchOpen(false)} 
+                className="p-2 hover:bg-muted rounded-full absolute right-2"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto p-4 flex-1">
+              {searchResults.length === 0 ? (
+                <div className="text-center p-12 text-muted-foreground">
+                  Press Enter to search your entire home directory.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {searchResults.map((res, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition">
+                      <div className="overflow-hidden mr-4">
+                        <div className="truncate font-medium text-sm" title={res.path}>
+                          {res.path.split('\\').pop() || res.path.split('/').pop()}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {res.path}
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 shrink-0">
+                        <span className="font-bold text-sm">{formatBytes(res.size_bytes)}</span>
+                        <button 
+                          onClick={() => handleCleanUp(res.path, true)}
+                          disabled={isCleaning === res.path}
+                          className="px-3 py-1.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-xs hover:bg-destructive hover:text-destructive-foreground transition flex items-center disabled:opacity-50"
+                        >
+                          {isCleaning === res.path ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : "Clean Up"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

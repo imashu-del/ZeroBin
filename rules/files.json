@@ -1,14 +1,27 @@
 [
   {
+    "id": "stale_archives_installers",
+    "name": "Stale Archive or Installer",
+    "type": "file_metadata",
+    "target_dir": "Downloads",
+    "conditions": {
+      "min_size_mb": 50,
+      "min_inactive_days": 14,
+      "extensions": ["zip", "rar", "tar.gz", "iso", "exe", "msi"]
+    },
+    "action": "flag_for_review",
+    "message": "Archives and installers are usually one-time use. Once extracted or installed, the original downloaded file is dead weight."
+  },
+  {
     "id": "stale_downloads",
     "name": "Stale Downloaded File",
     "type": "file_metadata",
     "target_dir": "Downloads",
     "conditions": {
-      "min_size_mb": 500,
-      "min_inactive_days": 90
+      "min_size_mb": 200,
+      "min_inactive_days": 14
     },
     "action": "flag_for_review",
-    "message": "Large downloaded file untouched for over 3 months."
+    "message": "Large downloaded file untouched for over 14 days."
   }
 ]
