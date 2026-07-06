@@ -128,7 +128,7 @@ fn scan_installed_apps(rule: &EngineRule) -> Vec<Recommendation> {
                         if let Ok(install_date) = app_key.get_value::<String, _>("InstallDate") {
                             if install_date.len() == 8 {
                                 if let Ok(parsed_date) = NaiveDate::parse_from_str(&install_date, "%Y%m%d") {
-                                    let datetime = parsed_date.and_hms_opt(0, 0, 0).unwrap().and_utc();
+                                    let datetime = parsed_date.and_hms_opt(0, 0, 0).expect("0,0,0 is always valid").and_utc();
                                     inactive_days = (now - datetime).num_days().max(0);
                                 }
                             }

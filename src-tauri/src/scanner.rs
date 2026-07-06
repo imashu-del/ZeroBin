@@ -74,7 +74,7 @@ pub fn scan_directories(
                 // If it's a directory match, we should technically sum its contents, but for now
                 // we'll just track the files or folder itself. 
                 // A better approach for MVP: track the matched root path.
-                let mut items = found_items.lock().unwrap();
+                let mut items = found_items.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
                 
                 // Group by rule name to aggregate all files in a cache into a single UI item
                 let key = rule.name.clone();
@@ -100,6 +100,6 @@ pub fn scan_directories(
         }
     }
 
-    let results = found_items.lock().unwrap().values().cloned().collect();
+    let results = found_items.lock().unwrap_or_else(|poisoned| poisoned.into_inner()).values().cloned().collect();
     Ok(results)
 }

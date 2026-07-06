@@ -181,6 +181,7 @@ async fn compress_and_backup(app_handle: tauri::AppHandle, source_paths: Vec<Str
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
@@ -191,8 +192,7 @@ pub fn run() {
             let menu = Menu::with_items(app, &[&quit_i])?;
 
             // Setup Tray Icon
-            let _tray = TrayIconBuilder::new()
-                .icon(app.default_window_icon().unwrap().clone())
+            let mut tray_builder = TrayIconBuilder::new()
                 .tooltip("ZeroBin")
                 .menu(&menu)
                 .on_menu_event(|app, event| {
@@ -208,8 +208,13 @@ pub fn run() {
                             let _ = window.set_focus();
                         }
                     }
-                })
-                .build(app)?;
+                });
+                
+            if let Some(icon) = app.default_window_icon() {
+                tray_builder = tray_builder.icon(icon.clone());
+            }
+            
+            let _tray = tray_builder.build(app)?;
 
             // Setup silent background scanner thread
             let app_handle = app.handle().clone();
@@ -276,7 +281,7 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 // Instead of fully quitting, just hide it to the system tray
-                window.hide().unwrap();
+                let _ = window.hide();
                 api.prevent_close();
             }
         })
