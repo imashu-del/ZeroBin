@@ -31,19 +31,21 @@ pub fn scan_directories(
             // Convert simple glob pattern to one that globset understands
             // e.g. "*\\AppData\\Local\\Temp\\*" -> "**/AppData/Local/Temp/**"
             let normalized = pattern.replace("\\\\", "/").replace("\\", "/");
-            let glob_pattern = if normalized.starts_with('*') && !normalized.starts_with("**") {
-                format!("*{}", normalized) // Actually, globset handles * fine, but ** is better for arbitrary depth
-            } else {
-                normalized.clone()
-            };
-            
-            // To match anywhere, we can use **/*pattern* or similar, but for now we let globset parse it.
-            // A more robust glob for paths might be needed, let's just use the normalized one.
+            let normalized = pattern.replace("\\\\", "/").replace("\\", "/");
             let glob_pattern = normalized.replace("*", "**");
 
             if let Ok(glob) = Glob::new(&glob_pattern) {
                 builder.add(glob);
                 rule_mapping.push(i);
+            }
+            
+            // Also add a pattern that strips the trailing /* so we match the root directory itself.
+            if normalized.ends_with("/*") {
+                let dir_pattern = normalized.trim_end_matches("/*").replace("*", "**");
+                if let Ok(glob) = Glob::new(&dir_pattern) {
+                    builder.add(glob);
+                    rule_mapping.push(i);
+                }
             }
         }
     }

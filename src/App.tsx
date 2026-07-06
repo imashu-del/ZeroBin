@@ -41,6 +41,25 @@ function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [results, setResults] = useState<ScanResultPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isCleaning, setIsCleaning] = useState<string | null>(null);
+
+  async function handleCleanUp(path: string) {
+    setIsCleaning(path);
+    setError(null);
+    try {
+      await invoke("clean_up_path", { path });
+      if (results) {
+        setResults({
+          ...results,
+          caches: results.caches.filter(c => c.path !== path)
+        });
+      }
+    } catch (e: any) {
+      setError(`Failed to clean up: ${e.toString()}`);
+    } finally {
+      setIsCleaning(null);
+    }
+  }
 
   async function startScan() {
     setIsScanning(true);
@@ -192,11 +211,19 @@ function App() {
                       </div>
                       
                       <div className="flex justify-end space-x-3">
-                        <button className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition">
+                        <button 
+                          onClick={() => invoke("open_path_in_explorer", { path: item.path })}
+                          className="px-4 py-2 border rounded-md text-sm hover:bg-muted transition"
+                        >
                           View Files
                         </button>
-                        <button className="px-4 py-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm hover:bg-destructive hover:text-destructive-foreground transition">
-                          Clean Up
+                        <button 
+                          onClick={() => handleCleanUp(item.path)}
+                          disabled={isCleaning === item.path}
+                          className="px-4 py-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm hover:bg-destructive hover:text-destructive-foreground transition flex items-center disabled:opacity-50"
+                        >
+                          {isCleaning === item.path ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                          {isCleaning === item.path ? "Cleaning..." : "Clean Up"}
                         </button>
                       </div>
                     </div>

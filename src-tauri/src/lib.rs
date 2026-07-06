@@ -41,11 +41,41 @@ fn start_scan() -> Result<ScanResultPayload, String> {
     })
 }
 
+#[tauri::command]
+fn clean_up_path(path: String) -> Result<(), String> {
+    let p = std::path::Path::new(&path);
+    if !p.exists() {
+        return Err("Path does not exist".to_string());
+    }
+    
+    if p.is_dir() {
+        std::fs::remove_dir_all(p).map_err(|e| e.to_string())?;
+    } else {
+        std::fs::remove_file(p).map_err(|e| e.to_string())?;
+    }
+    
+    Ok(())
+}
+
+#[tauri::command]
+fn open_path_in_explorer(path: String) -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    {
+        let win_path = path.replace("/", "\\");
+        std::process::Command::new("explorer")
+            .arg("/select,")
+            .arg(&win_path)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![start_scan])
+        .invoke_handler(tauri::generate_handler![start_scan, clean_up_path, open_path_in_explorer])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
