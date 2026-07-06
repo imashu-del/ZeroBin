@@ -98,5 +98,39 @@
     "path_patterns": [
       "*\\\\AppData\\\\Local\\\\Unity\\\\cache\\\\*"
     ]
+  },
+  {
+    "name": "General Developer Caches (.cache)",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "medium",
+    "description": "Generic .cache directory used by Python, AI models (HuggingFace), and linters.",
+    "impact": "Tools will need to re-download cached models or datasets.",
+    "path_patterns": [
+      "*\\\\.cache\\\\*"
+    ]
+  },
+  {
+    "name": "Docker Build Caches",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "medium",
+    "description": "Temporary builder files and cached layers in .docker.",
+    "impact": "Next Docker builds may take longer without cache.",
+    "path_patterns": [
+      "*\\\\.docker\\\\buildx\\\\*"
+    ]
+  },
+  {
+    "name": "Rustup Downloads",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Temporary files and incomplete downloads from Rustup.",
+    "impact": "Interrupted toolchain downloads will restart.",
+    "path_patterns": [
+      "*\\\\.rustup\\\\downloads\\\\*",
+      "*\\\\.rustup\\\\tmp\\\\*"
+    ]
   }
 ]

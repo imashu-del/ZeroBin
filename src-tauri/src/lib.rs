@@ -26,19 +26,13 @@ pub struct SearchResult {
 }
 
 #[tauri::command]
-fn start_scan(target_path: Option<String>) -> Result<ScanResultPayload, String> {
+fn start_scan(app_handle: tauri::AppHandle, target_path: Option<String>) -> Result<ScanResultPayload, String> {
     // Determine the knowledge base path
-    let current_dir = env::current_dir().unwrap_or_default();
-    
-    // Tauri dev usually runs in `src-tauri`, but production runs wherever the exe is.
-    let mut kb_path = current_dir.join("knowledge");
-    if !kb_path.exists() {
-        kb_path = current_dir.join("../knowledge");
-    }
-    let mut rules_path = current_dir.join("rules");
-    if !rules_path.exists() {
-        rules_path = current_dir.join("../rules");
-    }
+    let resource_dir = app_handle.path().resource_dir().unwrap_or_default();
+    let mut kb_path = resource_dir.join("knowledge");
+    if !kb_path.exists() { kb_path = resource_dir.join("_up_").join("knowledge"); }
+    let mut rules_path = resource_dir.join("rules");
+    if !rules_path.exists() { rules_path = resource_dir.join("_up_").join("rules"); }
     
     let rules = load_knowledge_base(&kb_path.to_string_lossy());
     
@@ -225,11 +219,11 @@ pub fn run() {
                 loop {
                     thread::sleep(Duration::from_secs(43200)); // 12 hours
                     
-                    let current_dir = std::env::current_dir().unwrap_or_default();
-                    let mut kb_path = current_dir.join("knowledge");
-                    if !kb_path.exists() { kb_path = current_dir.join("../knowledge"); }
-                    let mut rules_path = current_dir.join("rules");
-                    if !rules_path.exists() { rules_path = current_dir.join("../rules"); }
+                    let resource_dir = app_handle.path().resource_dir().unwrap_or_default();
+                    let mut kb_path = resource_dir.join("knowledge");
+                    if !kb_path.exists() { kb_path = resource_dir.join("_up_").join("knowledge"); }
+                    let mut rules_path = resource_dir.join("rules");
+                    if !rules_path.exists() { rules_path = resource_dir.join("_up_").join("rules"); }
                     
                     let rules = crate::knowledge::load_knowledge_base(&kb_path.to_string_lossy());
                     let home_dir = dirs::home_dir().unwrap_or_default();
