@@ -149,7 +149,7 @@ fn get_drives() -> Result<Vec<String>, String> {
 
 #[tauri::command]
 async fn compress_and_backup(app_handle: tauri::AppHandle, source_paths: Vec<String>, destination: String) -> Result<String, String> {
-    let sidecar = app_handle.shell().sidecar("7za")
+    let sidecar = app_handle.shell().sidecar("sevenza")
         .map_err(|e| format!("Failed to find 7-Zip sidecar: {}", e))?;
 
     let mut args = vec![

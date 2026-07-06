@@ -9,3 +9,5 @@ Copyright (c) 2026 Ashutosh Samanta
 4. Attribution: If permission is granted to use or modify the software, you must provide clear attribution and credit to the original author.
 
 5. Third-Party Software (7-Zip): ZeroBin bundles the standalone 7-Zip command-line executable (7za.exe) to perform compression. 7-Zip is copyright (c) 1999-2023 Igor Pavlov and is licensed under the GNU LGPL. The restrictions on reverse engineering and modification in this license apply only to ZeroBin's proprietary code, not to the bundled 7-Zip executable, which remains governed by the LGPL. You may obtain the source code for 7-Zip at www.7-zip.org.
+
+6. Third-Party Assets (Fonts): ZeroBin uses the "Clash Display" font provided by Fontshare (Indian Type Foundry). The font is copyright (c) 2021 Indian Type Foundry and is used under the Fontshare Free Font End User License Agreement (FF EULA). You may not extract, modify, or independently distribute the font software from this application.

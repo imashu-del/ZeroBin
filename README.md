@@ -104,6 +104,8 @@ You are free to download, install, and use ZeroBin for personal or commercial us
 
 *ZeroBin securely bundles the 7-Zip standalone command-line executable (`7za.exe`), which is copyright (c) 1999-2023 Igor Pavlov and licensed under the GNU LGPL. For details, see the `LICENSE` file.*
 
+*ZeroBin uses the "Clash Display" font provided by Fontshare (Indian Type Foundry), which is copyright (c) 2021 Indian Type Foundry and governed by the Fontshare Free Font End User License Agreement (FF EULA).*
+
 <div align="center">
   <p>Built with 🤍 by <strong>Ashutosh Samanta</strong></p>
 </div>
