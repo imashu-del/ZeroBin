@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Trash2, HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock, ChevronDown, ChevronUp, MoreHorizontal, Search as SearchIcon, X, ShieldCheck } from "lucide-react";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { Trash2, HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock, ChevronDown, ChevronUp, MoreHorizontal, Search as SearchIcon, X, ShieldCheck, Archive, FilePlus, FolderPlus } from "lucide-react";
 
 interface FoundItem {
   path: string;
@@ -57,6 +58,13 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [drives, setDrives] = useState<string[]>([]);
   const [selectedDrive, setSelectedDrive] = useState<string>("");
+
+  // Backup state
+  const [isBackupOpen, setIsBackupOpen] = useState(false);
+  const [backupSources, setBackupSources] = useState<string[]>([]);
+  const [backupDest, setBackupDest] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressResult, setCompressResult] = useState<string | null>(null);
 
   useEffect(() => {
     invoke("get_drives")
@@ -125,6 +133,55 @@ function App() {
     }
   }
 
+  async function selectBackupSource(directory: boolean) {
+    try {
+      const selected = await open({ directory, multiple: true });
+      if (selected) {
+        if (Array.isArray(selected)) {
+          setBackupSources(prev => Array.from(new Set([...prev, ...selected])));
+        } else {
+          setBackupSources(prev => Array.from(new Set([...prev, selected as string])));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function selectBackupDest() {
+    try {
+      const selected = await save({
+        filters: [{ name: "7-Zip Archive", extensions: ["7z"] }],
+        defaultPath: "ZeroBin_Backup.7z"
+      });
+      if (selected) {
+        setBackupDest(selected);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function startBackup() {
+    if (!backupDest || backupSources.length === 0) return;
+    setIsCompressing(true);
+    setCompressResult(null);
+    try {
+      const result = await invoke("compress_and_backup", { 
+        sourcePaths: backupSources, 
+        destination: backupDest 
+      });
+      setCompressResult(`Success: ${result}`);
+      // Clear after success
+      setBackupSources([]);
+      setBackupDest(null);
+    } catch (e: any) {
+      setCompressResult(`Error: ${e}`);
+    } finally {
+      setIsCompressing(false);
+    }
+  }
+
   const visibleCaches = results ? results.caches.filter(c => !ignoredIds.has(c.path)) : [];
   const visibleRecommendations = results ? results.recommendations.filter(r => !ignoredIds.has(r.id)) : [];
 
@@ -135,9 +192,8 @@ function App() {
   return (
     <main className="flex min-h-screen flex-col items-center p-8 bg-background text-foreground">
       <div className="flex flex-col items-center space-y-4 mb-8">
-        <div className="flex items-center space-x-3">
-          <Trash2 className="w-12 h-12 text-primary" />
-          <h1 className="text-4xl font-bold tracking-tight">ZeroBin</h1>
+        <div className="flex items-center justify-center">
+          <h1 className="text-5xl tracking-tight" style={{ fontFamily: '"Clash Display Light", "Clash Display", sans-serif', fontWeight: 300 }}>ZeroBin</h1>
         </div>
         <p className="text-muted-foreground max-w-md text-center">
           Offline-first storage intelligence and cleanup utility.
@@ -163,6 +219,15 @@ function App() {
                   className="w-full text-left px-4 py-2 hover:bg-muted rounded-md flex items-center"
                 >
                   <SearchIcon className="w-4 h-4 mr-2" /> Search Files
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsBackupOpen(true);
+                    setIsMoreOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-muted rounded-md flex items-center"
+                >
+                  <Archive className="w-4 h-4 mr-2" /> Compress & Backup
                 </button>
                 <div className="flex items-center justify-between px-4 py-2 hover:bg-muted rounded-md cursor-pointer" onClick={() => setSafeDelete(!safeDelete)}>
                   <div className="flex items-center">
@@ -423,6 +488,78 @@ function App() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Backup & Compress Modal */}
+      {isBackupOpen && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+          <div className="w-full max-w-2xl bg-card border shadow-2xl rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Archive className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl font-bold">Cold Storage Backup</h2>
+              </div>
+              <button onClick={() => setIsBackupOpen(false)} className="p-2 hover:bg-muted rounded-full">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-6 flex-1">
+              <p className="text-muted-foreground text-sm">
+                Aggressively compress your stale files and folders using the ultra-efficient 7-Zip LZMA2 engine to free up space on your primary drive.
+              </p>
+
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">1. Select Sources</h3>
+                <div className="flex space-x-3">
+                  <button onClick={() => selectBackupSource(false)} className="flex-1 py-2 px-4 border border-dashed hover:border-primary/50 hover:bg-muted/50 rounded-lg flex items-center justify-center transition">
+                    <FilePlus className="w-4 h-4 mr-2" /> Add Files
+                  </button>
+                  <button onClick={() => selectBackupSource(true)} className="flex-1 py-2 px-4 border border-dashed hover:border-primary/50 hover:bg-muted/50 rounded-lg flex items-center justify-center transition">
+                    <FolderPlus className="w-4 h-4 mr-2" /> Add Folders
+                  </button>
+                </div>
+                {backupSources.length > 0 && (
+                  <div className="bg-muted/30 rounded-lg p-3 max-h-40 overflow-y-auto border space-y-2">
+                    {backupSources.map((src, i) => (
+                      <div key={i} className="flex items-center justify-between text-sm bg-background p-2 rounded border">
+                        <span className="truncate mr-4" title={src}>{src}</span>
+                        <button onClick={() => setBackupSources(backupSources.filter(s => s !== src))} className="text-destructive hover:text-destructive/80">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">2. Select Destination</h3>
+                <button onClick={selectBackupDest} className="w-full py-3 px-4 bg-muted hover:bg-muted/80 rounded-lg flex items-center justify-between transition border border-transparent hover:border-primary/20">
+                  <span className="truncate mr-4 font-medium">{backupDest || "Choose where to save the .7z archive..."}</span>
+                  <HardDrive className="w-5 h-5 text-muted-foreground shrink-0" />
+                </button>
+              </div>
+
+              {compressResult && (
+                <div className={`p-4 rounded-lg text-sm border ${compressResult.startsWith('Success') ? 'bg-green-500/10 text-green-600 border-green-500/20' : 'bg-destructive/10 text-destructive border-destructive/20'}`}>
+                  {compressResult}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t bg-muted/20 flex justify-end">
+              <button 
+                onClick={startBackup}
+                disabled={isCompressing || backupSources.length === 0 || !backupDest}
+                className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition flex items-center disabled:opacity-50"
+              >
+                {isCompressing ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Archive className="w-5 h-5 mr-2" />}
+                {isCompressing ? "Compressing & Backing Up..." : "Start Compression"}
+              </button>
             </div>
           </div>
         </div>

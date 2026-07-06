@@ -31,7 +31,6 @@ pub fn scan_directories(
             // Convert simple glob pattern to one that globset understands
             // e.g. "*\\AppData\\Local\\Temp\\*" -> "**/AppData/Local/Temp/**"
             let normalized = pattern.replace("\\\\", "/").replace("\\", "/");
-            let normalized = pattern.replace("\\\\", "/").replace("\\", "/");
             let glob_pattern = normalized.replace("*", "**");
 
             if let Ok(glob) = Glob::new(&glob_pattern) {

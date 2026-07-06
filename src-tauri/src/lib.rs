@@ -11,6 +11,7 @@ use tauri::Manager;
 use tauri::tray::{TrayIconBuilder, TrayIconEvent, MouseButton};
 use tauri::menu::{Menu, MenuItem};
 use tauri_plugin_notification::NotificationExt;
+use tauri_plugin_shell::ShellExt;
 
 #[derive(serde::Serialize)]
 pub struct ScanResultPayload {
@@ -146,9 +147,42 @@ fn get_drives() -> Result<Vec<String>, String> {
     }
 }
 
+#[tauri::command]
+async fn compress_and_backup(app_handle: tauri::AppHandle, source_paths: Vec<String>, destination: String) -> Result<String, String> {
+    let sidecar = app_handle.shell().sidecar("7za")
+        .map_err(|e| format!("Failed to find 7-Zip sidecar: {}", e))?;
+
+    let mut args = vec![
+        "a".to_string(), 
+        "-t7z".to_string(), 
+        "-mx=5".to_string(), 
+        "-y".to_string(),     // Assume Yes on all queries (prevents hanging if file exists)
+        "-bsp0".to_string(),  // Disable progress output stream to prevent pipe buffer issues
+        destination.clone()
+    ];
+    for path in source_paths {
+        args.push(path);
+    }
+    
+    let command = sidecar.args(args);
+    
+    let output = command.output().await
+        .map_err(|e| format!("Failed to execute 7-Zip: {}", e))?;
+        
+    if output.status.success() {
+        Ok(format!("Successfully backed up to {}", destination))
+    } else {
+        let err_msg = String::from_utf8_lossy(&output.stderr).into_owned();
+        let out_msg = String::from_utf8_lossy(&output.stdout).into_owned();
+        Err(format!("7-Zip Error: {} \n {}", err_msg, out_msg))
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
@@ -180,11 +214,11 @@ pub fn run() {
             // Setup silent background scanner thread
             let app_handle = app.handle().clone();
             thread::spawn(move || {
-                // Start with an old timestamp so it can fire immediately upon finding bloat
-                let mut last_notification = std::time::Instant::now() - Duration::from_secs(3600);
+                // Use Option to avoid underflow if system uptime is < 2 days
+                let mut last_notification: Option<std::time::Instant> = None;
                 
                 loop {
-                    thread::sleep(Duration::from_secs(30));
+                    thread::sleep(Duration::from_secs(43200)); // 12 hours
                     
                     let current_dir = std::env::current_dir().unwrap_or_default();
                     let mut kb_path = current_dir.join("knowledge");
@@ -208,20 +242,30 @@ pub fn run() {
                         total_savings += r.size_bytes;
                     }
                     
-                    // Threshold: 100MB (for testing)
-                    if total_savings > 100_000_000 {
-                        if last_notification.elapsed() > Duration::from_secs(120) { // Throttle to every 2 mins
+                    // Threshold: 5GB
+                    if total_savings > 5_000_000_000 {
+                        if last_notification.map_or(true, |last| last.elapsed() > Duration::from_secs(172800)) { // 2-day notification limit
                             let size_mb = total_savings / (1024 * 1024);
-                            if let Err(e) = app_handle.notification()
-                                .builder()
-                                .title("ZeroBin")
-                                .body(&format!("{} MB is a lot of storage! Clean it up with ZeroBin.", size_mb))
-                                .show() 
-                            {
-                                eprintln!("Failed to send notification: {}", e);
-                            } else {
-                                last_notification = std::time::Instant::now();
-                            }
+                            let app_handle_clone = app_handle.clone();
+                            
+                            std::thread::spawn(move || {
+                                if let Ok(handle) = notify_rust::Notification::new()
+                                    .summary("ZeroBin")
+                                    .body(&format!("{} MB is a lot of storage! Clean it up with ZeroBin.", size_mb))
+                                    .show()
+                                {
+                                    handle.wait_for_action(|action| {
+                                        if action == "default" {
+                                            if let Some(window) = app_handle_clone.get_webview_window("main") {
+                                                let _ = window.show();
+                                                let _ = window.set_focus();
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                            
+                            last_notification = Some(std::time::Instant::now());
                         }
                     }
                 }
@@ -236,7 +280,7 @@ pub fn run() {
                 api.prevent_close();
             }
         })
-        .invoke_handler(tauri::generate_handler![start_scan, clean_up_path, open_path_in_explorer, search_files, get_drives])
+        .invoke_handler(tauri::generate_handler![start_scan, clean_up_path, open_path_in_explorer, search_files, get_drives, compress_and_backup])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
