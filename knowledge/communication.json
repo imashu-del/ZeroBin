@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Discord Cache",
+    "category": "communication",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached images, videos, and scripts from Discord.",
+    "impact": "Slower image loading when scrolling up in old chats.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Roaming\\\\discord\\\\Cache\\\\*",
+      "*\\\\AppData\\\\Roaming\\\\discord\\\\Code Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Slack Cache",
+    "category": "communication",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached workspace data and images for Slack.",
+    "impact": "Workspaces might take an extra second to load initially.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Roaming\\\\Slack\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Spotify Cache",
+    "category": "communication",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached songs and album art for Spotify.",
+    "impact": "Recently played songs will need to be re-downloaded. Does not delete your playlists.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Spotify\\\\Storage\\\\*"
+    ]
+  }
+]

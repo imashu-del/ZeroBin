@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Adobe Media Cache",
+    "category": "creative",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Peak files and conformed audio/video for Adobe Premiere and After Effects.",
+    "impact": "Adobe apps will need to regenerate peak files when you open old projects (takes a few minutes).",
+    "path_patterns": [
+      "*\\\\AppData\\\\Roaming\\\\Adobe\\\\Common\\\\Media Cache Files\\\\*",
+      "*\\\\AppData\\\\Roaming\\\\Adobe\\\\Common\\\\Media Cache\\\\*"
+    ]
+  }
+]

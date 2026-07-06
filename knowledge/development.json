@@ -7,7 +7,7 @@
     "description": "Cached packages for Node Package Manager.",
     "impact": "Next npm install might take longer to download packages.",
     "path_patterns": [
-      "*\\\\npm-cache\\\\*"
+      "*\\\\AppData\\\\Local\\\\npm-cache\\\\*"
     ]
   },
   {
@@ -20,6 +20,61 @@
     "path_patterns": [
       "*\\\\.cargo\\\\registry\\\\cache\\\\*",
       "*\\\\.cargo\\\\registry\\\\index\\\\*"
+    ]
+  },
+  {
+    "name": "pnpm Store",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Global package store for pnpm.",
+    "impact": "Next pnpm install will fetch packages from the network.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\pnpm\\\\store\\\\*"
+    ]
+  },
+  {
+    "name": "Yarn Cache",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Global package cache for Yarn.",
+    "impact": "Next yarn install will fetch packages from the network.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Yarn\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Pip Cache",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached Python wheels and packages.",
+    "impact": "Pip will re-download packages instead of using the cache.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\pip\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "NuGet Packages",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "medium",
+    "description": "Global packages folder for .NET projects.",
+    "impact": "Projects will need to restore packages on the next build, which can take time.",
+    "path_patterns": [
+      "*\\\\.nuget\\\\packages\\\\*"
+    ]
+  },
+  {
+    "name": "Gradle Caches",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached dependencies and build outputs for Java/Android projects.",
+    "impact": "Gradle will re-download dependencies on the next sync.",
+    "path_patterns": [
+      "*\\\\.gradle\\\\caches\\\\*"
     ]
   }
 ]

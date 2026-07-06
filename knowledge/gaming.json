@@ -7,8 +7,42 @@
     "description": "Precompiled graphics shaders for NVIDIA GPUs.",
     "impact": "Games might experience slight stuttering on next launch while shaders are rebuilt.",
     "path_patterns": [
-      "*\\\\NVIDIA\\\\DXCache\\\\*",
-      "*\\\\NVIDIA\\\\GLCache\\\\*"
+      "*\\\\AppData\\\\Local\\\\NVIDIA\\\\DXCache\\\\*",
+      "*\\\\AppData\\\\Local\\\\NVIDIA\\\\GLCache\\\\*"
+    ]
+  },
+  {
+    "name": "AMD Shader Cache",
+    "category": "gaming",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Precompiled graphics shaders for AMD GPUs.",
+    "impact": "Games might experience slight stuttering on next launch while shaders are rebuilt.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\AMD\\\\DxCache\\\\*",
+      "*\\\\AppData\\\\Local\\\\AMD\\\\GLCache\\\\*"
+    ]
+  },
+  {
+    "name": "Steam Download Cache",
+    "category": "gaming",
+    "safe_to_delete": false,
+    "risk": "medium",
+    "description": "Temporary files for currently downloading Steam games.",
+    "impact": "Active downloads will be interrupted or restarted. Only delete if Steam is closed and no downloads are queued.",
+    "path_patterns": [
+      "*\\\\Steam\\\\steamapps\\\\downloading\\\\*"
+    ]
+  },
+  {
+    "name": "Epic Games Web Cache",
+    "category": "gaming",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached web content for the Epic Games Launcher.",
+    "impact": "The launcher may take slightly longer to load the store page next time.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\EpicGamesLauncher\\\\Saved\\\\webcache\\\\*"
     ]
   }
 ]

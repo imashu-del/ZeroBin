@@ -5,7 +5,7 @@
     "safe_to_delete": true,
     "risk": "low",
     "description": "Temporary files created by Windows and applications.",
-    "impact": "Files in use will be skipped; safe to delete.",
+    "impact": "Files in use will be skipped; completely safe to delete.",
     "path_patterns": [
       "*\\\\AppData\\\\Local\\\\Temp\\\\*",
       "*\\\\Windows\\\\Temp\\\\*"
@@ -20,6 +20,29 @@
     "impact": "Windows update downloads might take slightly longer next time.",
     "path_patterns": [
       "*\\\\DeliveryOptimization\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Crash Dumps (WER)",
+    "category": "windows",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Logs and memory dumps created when applications crash.",
+    "impact": "You will lose the ability to debug past app crashes. Completely safe to delete.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\CrashDumps\\\\*",
+      "*\\\\ProgramData\\\\Microsoft\\\\Windows\\\\WER\\\\ReportArchive\\\\*"
+    ]
+  },
+  {
+    "name": "Windows Update Downloads",
+    "category": "windows",
+    "safe_to_delete": false,
+    "risk": "medium",
+    "description": "Downloaded files for pending Windows Updates.",
+    "impact": "Only delete if Windows is fully up-to-date. Deleting this while an update is installing will break the update.",
+    "path_patterns": [
+      "*\\\\Windows\\\\SoftwareDistribution\\\\Download\\\\*"
     ]
   }
 ]
