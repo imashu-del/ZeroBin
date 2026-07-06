@@ -9,5 +9,50 @@
     "path_patterns": [
       "*\\\\Google\\\\Chrome\\\\User Data\\\\*\\\\Cache\\\\*"
     ]
+  },
+  {
+    "name": "Microsoft Edge Cache",
+    "category": "browsers",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached images and web pages for Microsoft Edge.",
+    "impact": "Websites might load slightly slower on the first visit.",
+    "path_patterns": [
+      "*\\\\Microsoft\\\\Edge\\\\User Data\\\\*\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Brave Browser Cache",
+    "category": "browsers",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached web content for Brave.",
+    "impact": "Websites might load slightly slower on the first visit.",
+    "path_patterns": [
+      "*\\\\BraveSoftware\\\\Brave-Browser\\\\User Data\\\\*\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Firefox Cache",
+    "category": "browsers",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached web content for Mozilla Firefox.",
+    "impact": "Websites might load slightly slower on the first visit.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Mozilla\\\\Firefox\\\\Profiles\\\\*\\\\cache2\\\\*"
+    ]
+  },
+  {
+    "name": "Opera Cache",
+    "category": "browsers",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached web content for Opera and Opera GX.",
+    "impact": "Websites might load slightly slower on the first visit.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Opera Software\\\\Opera Stable\\\\Cache\\\\*",
+      "*\\\\Opera GX Stable\\\\Cache\\\\*"
+    ]
   }
 ]

@@ -76,5 +76,27 @@
     "path_patterns": [
       "*\\\\.gradle\\\\caches\\\\*"
     ]
+  },
+  {
+    "name": "Java Maven Cache",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached JARs and dependencies for Maven/Java projects.",
+    "impact": "Maven will re-download required dependencies on the next project build.",
+    "path_patterns": [
+      "*\\\\.m2\\\\repository\\\\*"
+    ]
+  },
+  {
+    "name": "Unity Engine Cache",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "medium",
+    "description": "Global package cache for the Unity Game Engine.",
+    "impact": "Unity will re-download packages the next time you open a project.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Unity\\\\cache\\\\*"
+    ]
   }
 ]

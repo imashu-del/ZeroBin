@@ -44,5 +44,39 @@
     "path_patterns": [
       "*\\\\AppData\\\\Local\\\\EpicGamesLauncher\\\\Saved\\\\webcache\\\\*"
     ]
+  },
+  {
+    "name": "EA Desktop Cache",
+    "category": "gaming",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached data and images for the EA Desktop app.",
+    "impact": "The launcher may take slightly longer to load the store page next time.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Electronic Arts\\\\EA Desktop\\\\*\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Steam Crash Dumps",
+    "category": "gaming",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Crash reports and memory dumps from the Steam client.",
+    "impact": "You won't be able to send past crash reports to Valve. Completely safe to delete.",
+    "path_patterns": [
+      "*\\\\Steam\\\\dumps\\\\*"
+    ]
+  },
+  {
+    "name": "Riot Games Logs",
+    "category": "gaming",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Massive text logs from League of Legends and Riot Client.",
+    "impact": "You won't be able to provide support logs for past games if requested by Riot Support.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Riot Games\\\\Riot Client\\\\Logs\\\\*",
+      "*\\\\Riot Games\\\\League of Legends\\\\Logs\\\\*"
+    ]
   }
 ]

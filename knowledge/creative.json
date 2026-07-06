@@ -10,5 +10,27 @@
       "*\\\\AppData\\\\Roaming\\\\Adobe\\\\Common\\\\Media Cache Files\\\\*",
       "*\\\\AppData\\\\Roaming\\\\Adobe\\\\Common\\\\Media Cache\\\\*"
     ]
+  },
+  {
+    "name": "Adobe Camera Raw Cache",
+    "category": "creative",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached image previews and data for Photoshop and Lightroom.",
+    "impact": "Next time you open raw photos, they might take a few seconds to generate previews.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Adobe\\\\CameraRaw\\\\Cache\\\\*"
+    ]
+  },
+  {
+    "name": "Blender Temp Files",
+    "category": "creative",
+    "safe_to_delete": true,
+    "risk": "medium",
+    "description": "Auto-saves and temporary crash recovery files for Blender.",
+    "impact": "You will lose the ability to recover unsaved work if Blender recently crashed.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Temp\\\\blender\\\\*"
+    ]
   }
 ]
