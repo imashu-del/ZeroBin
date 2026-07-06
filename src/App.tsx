@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { Trash2, HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock, ChevronDown, ChevronUp, MoreHorizontal, Search as SearchIcon, X, ShieldCheck, Archive, FilePlus, FolderPlus } from "lucide-react";
+import { HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock, ChevronDown, ChevronUp, MoreHorizontal, Search as SearchIcon, X, ShieldCheck, Archive, FilePlus, FolderPlus } from "lucide-react";
 
 interface FoundItem {
   path: string;
