@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Trash2, HardDrive, ShieldAlert, CheckCircle, Loader2, Lightbulb, Clock, ChevronDown, ChevronUp, MoreHorizontal, Search as SearchIcon, X, ShieldCheck } from "lucide-react";
 
@@ -55,6 +55,14 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [drives, setDrives] = useState<string[]>([]);
+  const [selectedDrive, setSelectedDrive] = useState<string>("");
+
+  useEffect(() => {
+    invoke("get_drives")
+      .then((res: any) => setDrives(res))
+      .catch(console.error);
+  }, []);
 
   function handleIgnore(id: string) {
     setIgnoredIds(prev => {
@@ -90,7 +98,7 @@ function App() {
     setError(null);
     setIgnoredIds(new Set());
     try {
-      const payload: ScanResultPayload = await invoke("start_scan");
+      const payload: ScanResultPayload = await invoke("start_scan", { targetPath: selectedDrive });
       
       // Sort by size descending
       payload.caches.sort((a, b) => b.size_bytes - a.size_bytes);
@@ -136,38 +144,47 @@ function App() {
         </p>
       </div>
 
-      <div className="fixed bottom-6 left-6 z-50">
-        <button 
-          onClick={() => setIsMoreOpen(!isMoreOpen)}
-          className="flex items-center px-5 py-2.5 bg-card border shadow-md rounded-full hover:bg-muted transition font-medium"
-        >
-          <MoreHorizontal className="w-5 h-5 mr-2 text-muted-foreground" /> More
-        </button>
-        
+      <div className="fixed bottom-6 left-6 z-50 flex flex-col justify-end">
         {isMoreOpen && (
-          <div className="absolute bottom-14 left-0 bg-card border shadow-xl rounded-xl w-64 z-10 overflow-hidden animate-in fade-in slide-in-from-bottom-2">
-            <div className="p-2">
-              <button 
-                onClick={() => {
-                  setIsSearchOpen(true);
-                  setIsMoreOpen(false);
-                }}
-                className="w-full text-left px-4 py-2 hover:bg-muted rounded-md flex items-center"
-              >
-                <SearchIcon className="w-4 h-4 mr-2" /> Search Files
-              </button>
-              <div className="flex items-center justify-between px-4 py-2 hover:bg-muted rounded-md cursor-pointer" onClick={() => setSafeDelete(!safeDelete)}>
-                <div className="flex items-center">
-                  <ShieldCheck className={`w-4 h-4 mr-2 ${safeDelete ? "text-green-500" : "text-muted-foreground"}`} />
-                  <span>Safe Delete</span>
-                </div>
-                <div className={`w-8 h-4 rounded-full flex items-center px-0.5 transition-colors ${safeDelete ? 'bg-green-500' : 'bg-muted-foreground/30'}`}>
-                  <div className={`w-3 h-3 rounded-full bg-white transition-transform ${safeDelete ? 'translate-x-4' : 'translate-x-0'}`} />
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setIsMoreOpen(false)}
+          />
+        )}
+        <div className="relative z-50">
+          {isMoreOpen && (
+            <div className="absolute bottom-full left-0 mb-3 bg-card border shadow-xl rounded-xl w-64 overflow-hidden animate-in fade-in slide-in-from-bottom-2">
+              <div className="p-2">
+                <button 
+                  onClick={() => {
+                    setIsSearchOpen(true);
+                    setIsMoreOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-muted rounded-md flex items-center"
+                >
+                  <SearchIcon className="w-4 h-4 mr-2" /> Search Files
+                </button>
+                <div className="flex items-center justify-between px-4 py-2 hover:bg-muted rounded-md cursor-pointer" onClick={() => setSafeDelete(!safeDelete)}>
+                  <div className="flex items-center">
+                    <ShieldCheck className={`w-4 h-4 mr-2 ${safeDelete ? "text-green-500" : "text-muted-foreground"}`} />
+                    <span>Safe Delete</span>
+                  </div>
+                  <div className={`w-8 h-4 rounded-full flex items-center px-0.5 transition-colors ${safeDelete ? 'bg-green-500' : 'bg-muted-foreground/30'}`}>
+                    <div className={`w-3 h-3 rounded-full bg-white transition-transform ${safeDelete ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+          
+          <button 
+            onClick={() => setIsMoreOpen(!isMoreOpen)}
+            className="flex items-center px-5 py-2.5 bg-card border shadow-md rounded-full hover:bg-muted transition font-medium"
+          >
+            {isMoreOpen ? <X className="w-5 h-5 mr-2 text-muted-foreground" /> : <MoreHorizontal className="w-5 h-5 mr-2 text-muted-foreground" />}
+            {isMoreOpen ? "Close" : "More"}
+          </button>
+        </div>
       </div>
 
       <div className="w-full max-w-4xl flex flex-col space-y-6">
@@ -180,17 +197,31 @@ function App() {
               Find caches and review smart storage recommendations.
             </p>
           </div>
-          <button 
-            onClick={startScan}
-            disabled={isScanning}
-            className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition flex items-center disabled:opacity-50"
-          >
-            {isScanning ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Scanning...
-              </>
-            ) : "Start Scan"}
-          </button>
+          <div className="flex items-center space-x-3">
+            {drives.length > 0 && (
+              <select 
+                value={selectedDrive} 
+                onChange={e => setSelectedDrive(e.target.value)}
+                className="px-4 py-3 bg-muted border border-muted-foreground/20 rounded-lg outline-none cursor-pointer focus:border-primary transition"
+              >
+                <option value="">User Home Directory</option>
+                {drives.map(d => (
+                  <option key={d} value={d}>{d} Drive</option>
+                ))}
+              </select>
+            )}
+            <button 
+              onClick={startScan}
+              disabled={isScanning}
+              className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition flex items-center disabled:opacity-50"
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Scanning...
+                </>
+              ) : "Start Scan"}
+            </button>
+          </div>
         </div>
 
         {error && (
