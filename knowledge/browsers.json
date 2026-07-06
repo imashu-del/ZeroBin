@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Chrome Cache",
+    "category": "browsers",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached images, scripts, and web pages for Google Chrome.",
+    "impact": "Websites might load slightly slower on the first visit.",
+    "path_patterns": [
+      "*\\\\Google\\\\Chrome\\\\User Data\\\\*\\\\Cache\\\\*"
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "NVIDIA Shader Cache",
+    "category": "gaming",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Precompiled graphics shaders for NVIDIA GPUs.",
+    "impact": "Games might experience slight stuttering on next launch while shaders are rebuilt.",
+    "path_patterns": [
+      "*\\\\NVIDIA\\\\DXCache\\\\*",
+      "*\\\\NVIDIA\\\\GLCache\\\\*"
+    ]
+  }
+]

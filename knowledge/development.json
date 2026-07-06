@@ -1,0 +1,25 @@
+[
+  {
+    "name": "NPM Cache",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached packages for Node Package Manager.",
+    "impact": "Next npm install might take longer to download packages.",
+    "path_patterns": [
+      "*\\\\npm-cache\\\\*"
+    ]
+  },
+  {
+    "name": "Rust Cargo Registry",
+    "category": "development",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cached source code and index for Cargo packages.",
+    "impact": "Cargo will re-download the index and crates on next build.",
+    "path_patterns": [
+      "*\\\\.cargo\\\\registry\\\\cache\\\\*",
+      "*\\\\.cargo\\\\registry\\\\index\\\\*"
+    ]
+  }
+]

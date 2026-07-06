@@ -1,0 +1,25 @@
+[
+  {
+    "name": "Windows Temp Files",
+    "category": "windows",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Temporary files created by Windows and applications.",
+    "impact": "Files in use will be skipped; safe to delete.",
+    "path_patterns": [
+      "*\\\\AppData\\\\Local\\\\Temp\\\\*",
+      "*\\\\Windows\\\\Temp\\\\*"
+    ]
+  },
+  {
+    "name": "Windows Delivery Optimization",
+    "category": "windows",
+    "safe_to_delete": true,
+    "risk": "low",
+    "description": "Cache for Windows updates shared across local network.",
+    "impact": "Windows update downloads might take slightly longer next time.",
+    "path_patterns": [
+      "*\\\\DeliveryOptimization\\\\Cache\\\\*"
+    ]
+  }
+]
