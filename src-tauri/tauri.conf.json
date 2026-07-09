@@ -28,7 +28,7 @@
       "../knowledge/*",
       "../rules/*"
     ],
-    "licenseFile": "../LICENSE.rtf",
+    "licenseFile": "../EULA.txt",
     "externalBin": ["binaries/sevenza"],
     "icon": [
       "icons/32x32.png",

@@ -1,0 +1,27 @@
+END USER LICENSE AGREEMENT (EULA)
+
+Copyright (c) 2026 [TODO: GitHub Profile Name]
+All rights reserved for this binary distribution.
+
+Please read this End User License Agreement ("Agreement") carefully before clicking the "I Agree" button, downloading or using the ZeroBin binary distribution ("Application").
+
+By clicking the "I Agree" button, downloading or using the Application, you are agreeing to be bound by the terms and conditions of this Agreement.
+
+1. Source Code and Licensing
+The source code of ZeroBin is openly auditable on GitHub and is licensed under the MIT License. This EULA applies exclusively to this specific, pre-compiled binary distribution of the Application.
+
+2. License Grant
+The author grants you a revocable, non-exclusive, non-transferable, limited license to download, install and use the Application strictly in accordance with the terms of this Agreement.
+
+3. Restrictions
+You agree not to, and you will not permit others to:
+- Redistribute, sell, lease, rent, or sublicense the binary Application.
+- Repackage or bundle this binary with other software without prior written consent.
+
+4. Limitation of Liability
+THE APPLICATION IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE APPLICATION OR THE USE OR OTHER DEALINGS IN THE APPLICATION.
+
+5. Third-Party Software
+ZeroBin bundles the standalone 7-Zip command-line executable (7za.exe), which is copyright (c) 1999-2023 Igor Pavlov and licensed under the GNU LGPL. ZeroBin also uses the "Clash Display" font, copyright (c) 2021 Indian Type Foundry and used under the Fontshare Free Font End User License Agreement (FF EULA).
+
+By continuing to install ZeroBin, you acknowledge and accept this EULA.

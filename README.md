@@ -98,9 +98,7 @@ Example rule from `browsers.json`:
 ---
 
 ## ⚖️ License & Legal
-ZeroBin's proprietary source code is protected under a custom Source-Available License. 
-
-You are free to download, install, and use ZeroBin for personal or commercial use. However, you may **not** reverse engineer, decompile, modify, or integrate ZeroBin into other software without explicit written permission from the author. 
+The source code of ZeroBin is licensed under the MIT License, while the distributed binary installer utilizes a standard End User License Agreement (EULA).
 
 *ZeroBin securely bundles the 7-Zip standalone command-line executable (`7za.exe`), which is copyright (c) 1999-2023 Igor Pavlov and licensed under the GNU LGPL. For details, see the `LICENSE` file.*
 

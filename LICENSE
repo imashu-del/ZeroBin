@@ -1,13 +1,21 @@
-Copyright (c) 2026 Ashutosh Samanta
+MIT License
 
-1. Usage: Anyone is permitted to download, install, and use the ZeroBin application for personal or commercial use free of charge.
+Copyright (c) 2026 [TODO: GitHub Profile Name]
 
-2. Source Code, Modifications, & Reverse Engineering: The source code is provided for transparency. You may not modify, alter, create derivative works, decompile, or reverse engineer the ZeroBin application or its source code without explicit, written permission from the original author.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-3. Integration & Distribution: You may not integrate ZeroBin into other software or distribute modified versions. If you wish to use ZeroBin's code in your own project, you must contact the author for permission.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-4. Attribution: If permission is granted to use or modify the software, you must provide clear attribution and credit to the original author.
-
-5. Third-Party Software (7-Zip): ZeroBin bundles the standalone 7-Zip command-line executable (7za.exe) to perform compression. 7-Zip is copyright (c) 1999-2023 Igor Pavlov and is licensed under the GNU LGPL. The restrictions on reverse engineering and modification in this license apply only to ZeroBin's proprietary code, not to the bundled 7-Zip executable, which remains governed by the LGPL. You may obtain the source code for 7-Zip at www.7-zip.org.
-
-6. Third-Party Assets (Fonts): ZeroBin uses the "Clash Display" font provided by Fontshare (Indian Type Foundry). The font is copyright (c) 2021 Indian Type Foundry and is used under the Fontshare Free Font End User License Agreement (FF EULA). You may not extract, modify, or independently distribute the font software from this application.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
